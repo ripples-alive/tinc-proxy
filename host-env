@@ -1,0 +1,6 @@
+#!/bin/bash
+
+ROUTE_TABLE=${ROUTE_TABLE:-200}
+MARK_VALUE=${MARK_VALUE:-${ROUTE_TABLE}}
+echo "route table: ${ROUTE_TABLE}"
+echo "mark value: ${MARK_VALUE}"

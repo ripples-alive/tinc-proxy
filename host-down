@@ -1,0 +1,25 @@
+#!/bin/bash
+
+echo "host $NODE down"
+
+DIR_NAME=${DIR_NAME:-$(dirname $(readlink -f $0))}
+DIR_NAME=${DIR_NAME:-"."}
+echo "dir name: ${DIR_NAME}"
+
+source $DIR_NAME/tinc-env
+source $DIR_NAME/host-env
+
+CHAIN_NAME="tinc$MARK_VALUE"
+echo "chain name: ${CHAIN_NAME}"
+
+# disable proxy rules
+iptables -t mangle -D PREROUTING -j $CHAIN_NAME
+iptables -t mangle -D OUTPUT -j $CHAIN_NAME
+
+# delete proxy rules
+iptables -t mangle -F $CHAIN_NAME
+iptables -t mangle -X $CHAIN_NAME
+
+# delete route table
+ip rule del fwmark $MARK_VALUE table $ROUTE_TABLE
+ip route flush table $ROUTE_TABLE

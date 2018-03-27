@@ -1,0 +1,18 @@
+#!/bin/bash
+
+echo "interface $INTERFACE down"
+
+DIR_NAME=${DIR_NAME:-$(dirname $(readlink -f $0))}
+DIR_NAME=${DIR_NAME:-"."}
+echo "dir name: ${DIR_NAME}"
+
+source $DIR_NAME/tinc-env
+
+# restore rp_filter
+echo 1 > /proc/sys/net/ipv4/conf/$INTERFACE/rp_filter
+
+# disable nat
+iptables -t nat -D POSTROUTING -o $INTERFACE -j MASQUERADE
+
+# delete bypass set
+ipset destroy $SET_NAME

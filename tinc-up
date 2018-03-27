@@ -1,0 +1,35 @@
+#!/bin/bash
+
+echo "interface $INTERFACE up"
+
+DIR_NAME=${DIR_NAME:-$(dirname $(readlink -f $0))}
+DIR_NAME=${DIR_NAME:-"."}
+echo "dir name: ${DIR_NAME}"
+
+source $DIR_NAME/tinc-env
+
+# create bypass set
+ipset create $SET_NAME hash:net
+
+# add bypass for lan
+if [ $BYPASS_LAN -eq 1 ]; then
+	ipset add $SET_NAME 10.0.0.0/8
+	ipset add $SET_NAME 172.16.0.0/12
+	ipset add $SET_NAME 192.168.0.0/16
+fi
+
+# add extra bypass
+for bypass_addr in ${BYPASS[@]}; do
+	ipset add $SET_NAME $bypass_addr
+done
+
+# add china list
+export SET_NAME
+echo "ipset name: ${SET_NAME}"
+$DIR_NAME/load-china-list >/dev/null 2>&1 &
+
+# enable nat
+iptables -t nat -I POSTROUTING -o $INTERFACE -j MASQUERADE
+
+# set rp_filter
+echo 2 > /proc/sys/net/ipv4/conf/$INTERFACE/rp_filter
