@@ -8,6 +8,10 @@ echo "dir name: ${DIR_NAME}"
 
 source $DIR_NAME/tinc-env
 
+# create interface
+ip link set $INTERFACE up
+ip addr add $VPN_IP/24 dev $INTERFACE
+
 # create bypass set
 ipset create $SET_NAME hash:net
 

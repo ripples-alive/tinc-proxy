@@ -5,10 +5,7 @@ You can run multiple tinc instance or multiple nodes with one instance as fallba
 ```bash
 #!/bin/bash
 # file: tinc-up
-ip link set $INTERFACE up
-ip addr add 172.16.1.1/24 dev $INTERFACE
-
-export VPN_GATEWAY=172.16.1.1
+export VPN_IP=172.16.1.2
 export SET_NAME=tinc_bypass
 /tinc-proxy/tinc-up
 ```
@@ -16,11 +13,9 @@ export SET_NAME=tinc_bypass
 ```bash
 #!/bin/bash
 # file: tinc-down
-export VPN_GATEWAY=172.16.1.1
+export VPN_IP=172.16.1.2
 export SET_NAME=tinc_bypass
 /tinc-proxy/tinc-down
-
-ip link set $INTERFACE down
 ```
 
 ```bash

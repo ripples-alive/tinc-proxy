@@ -16,3 +16,6 @@ iptables -t nat -D POSTROUTING -o $INTERFACE -j MASQUERADE
 
 # delete bypass set
 ipset destroy $SET_NAME
+
+# delete interface
+ip link set $INTERFACE down
