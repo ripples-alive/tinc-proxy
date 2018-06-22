@@ -30,7 +30,7 @@ done
 # add china list
 export SET_NAME
 echo "ipset name: ${SET_NAME}"
-$DIR_NAME/load-china-list >/dev/null 2>&1 &
+$DIR_NAME/load-chnroute >/dev/null 2>&1 &
 
 # enable nat
 iptables -t nat -I POSTROUTING -o $INTERFACE -j MASQUERADE

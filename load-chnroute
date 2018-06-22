@@ -1,0 +1,12 @@
+#!/bin/bash
+
+DIR_NAME=${DIR_NAME:-$(dirname $(readlink -f $0))}
+DIR_NAME=${DIR_NAME:-"."}
+echo "dir name: ${DIR_NAME}"
+
+while read line; do
+    ipset add $SET_NAME $line;
+done < $DIR_NAME/chnroute.txt
+echo "chnroute loaded"
+
+$DIR_NAME/reload-dns

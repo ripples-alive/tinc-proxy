@@ -29,3 +29,6 @@ iptables -t mangle -A $CHAIN_NAME -j CONNMARK --save-mark
 # enable proxy rules
 iptables -t mangle -I PREROUTING -j $CHAIN_NAME
 iptables -t mangle -I OUTPUT -j $CHAIN_NAME
+
+# reload dns
+$DIR_NAME/reload-dns

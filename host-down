@@ -23,3 +23,6 @@ iptables -t mangle -X $CHAIN_NAME
 # delete route table
 ip rule del fwmark $MARK_VALUE table $ROUTE_TABLE
 ip route flush table $ROUTE_TABLE
+
+# reload dns
+$DIR_NAME/reload-dns
