@@ -2,6 +2,8 @@
 
 You can run multiple tinc instance or multiple nodes with one instance as fallback for the strategy proxy.
 
+Remember to append your VPN server ip to `BYPASS` in `tinc-env`.
+
 ```bash
 #!/bin/bash
 # file: tinc-up
