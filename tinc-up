@@ -12,8 +12,10 @@ source $DIR_NAME/tinc-env
 ip link set $INTERFACE up
 ip addr add $VPN_IP/24 dev $INTERFACE
 
-# create bypass set
-ipset create $SET_NAME hash:net
+# create bypass set with china list
+echo "ipset name: ${SET_NAME}"
+sed "s/^/add $SET_NAME /;1i create $SET_NAME hash:net family inet hashsize 4096 maxelem 65536" $DIR_NAME/chnroute.txt | ipset restore
+echo "chnroute loaded"
 
 # add bypass for lan
 if [ $BYPASS_LAN -eq 1 ]; then
@@ -26,12 +28,6 @@ fi
 for bypass_addr in ${BYPASS[@]}; do
 	ipset add $SET_NAME $bypass_addr
 done
-
-# add china list
-export SET_NAME
-echo "ipset name: ${SET_NAME}"
-sed "s/^/add $SET_NAME /;1i create $SET_NAME hash:net family inet hashsize 4096 maxelem 65536" $DIR_NAME/chnroute.txt | ipset restore
-echo "chnroute loaded"
 
 # enable nat
 iptables -t nat -I POSTROUTING -o $INTERFACE -j MASQUERADE
