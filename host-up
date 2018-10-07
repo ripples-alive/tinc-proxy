@@ -20,11 +20,8 @@ ip rule add fwmark $MARK_VALUE table $ROUTE_TABLE
 # add proxy rules
 iptables -t mangle -N $CHAIN_NAME
 iptables -t mangle -A $CHAIN_NAME -d $VPN_IP -j ACCEPT
-iptables -t mangle -A $CHAIN_NAME -j CONNMARK --restore-mark
-iptables -t mangle -A $CHAIN_NAME -m mark ! --mark 0 -j RETURN
 iptables -t mangle -A $CHAIN_NAME -m set --match-set $SET_NAME dst -j RETURN
 iptables -t mangle -A $CHAIN_NAME -m mark --mark 0 -j MARK --set-mark $MARK_VALUE
-iptables -t mangle -A $CHAIN_NAME -j CONNMARK --save-mark
 
 # enable proxy rules
 iptables -t mangle -I PREROUTING -j $CHAIN_NAME
