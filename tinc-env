@@ -1,6 +1,11 @@
 #!/bin/bash
 
-VPN_IP=${VPN_IP:-172.16.16.111}
-BYPASS=('127.0.0.1' "$VPN_IP/24")
+VPN_LAN_IP=${VPN_LAN_IP:-172.16.16.111}
+
+BYPASS=($BYPASS '127.0.0.1' "$VPN_LAN_IP/24")
 BYPASS_LAN=${BYPASS_LAN:-1}
-SET_NAME=${SET_NAME:-tinc_bypass}
+
+SET_NAME=${SET_NAME:-tinc_bypass_${INTERFACE}}
+echo "ipset name: ${SET_NAME}"
+CHAIN_NAME=${CHAIN_NAME:-tinc_${INTERFACE}}
+echo "chain name: ${CHAIN_NAME}"

@@ -4,8 +4,11 @@ echo "interface $INTERFACE down"
 
 DIR_NAME=${DIR_NAME:-$(dirname $(readlink -f $0))}
 DIR_NAME=${DIR_NAME:-"."}
-echo "dir name: ${DIR_NAME}"
+echo "src dir: ${DIR_NAME}"
+WORKING_DIR=$(pwd)
+echo "working dir: ${WORKING_DIR}"
 
+[ -f $WORKING_DIR/tinc-env ] && source $WORKING_DIR/tinc-env
 source $DIR_NAME/tinc-env
 
 # restore rp_filter
@@ -13,6 +16,14 @@ echo 1 > /proc/sys/net/ipv4/conf/$INTERFACE/rp_filter
 
 # disable nat
 iptables -t nat -D POSTROUTING -o $INTERFACE -j MASQUERADE
+
+# disable rules
+iptables -t mangle -D PREROUTING -j $CHAIN_NAME
+iptables -t mangle -D OUTPUT -j $CHAIN_NAME
+
+# delete rules
+iptables -t mangle -F $CHAIN_NAME
+iptables -t mangle -X $CHAIN_NAME
 
 # delete bypass set
 ipset destroy $SET_NAME

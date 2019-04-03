@@ -4,21 +4,17 @@ echo "host $NODE down"
 
 DIR_NAME=${DIR_NAME:-$(dirname $(readlink -f $0))}
 DIR_NAME=${DIR_NAME:-"."}
-echo "dir name: ${DIR_NAME}"
+echo "src dir: ${DIR_NAME}"
+WORKING_DIR=$(pwd)
+echo "working dir: ${WORKING_DIR}"
 
+[ -f $WORKING_DIR/tinc-env ] && source $WORKING_DIR/tinc-env
 source $DIR_NAME/tinc-env
+[ -f $WORKING_DIR/hosts/$NODE-env ] && source $WORKING_DIR/hosts/$NODE-env
 source $DIR_NAME/host-env
 
-CHAIN_NAME="tinc$MARK_VALUE"
-echo "chain name: ${CHAIN_NAME}"
-
-# disable proxy rules
-iptables -t mangle -D PREROUTING -j $CHAIN_NAME
-iptables -t mangle -D OUTPUT -j $CHAIN_NAME
-
-# delete proxy rules
-iptables -t mangle -F $CHAIN_NAME
-iptables -t mangle -X $CHAIN_NAME
+# delete proxy rule
+iptables -t mangle -D $CHAIN_NAME -m mark --mark 0 -j MARK --set-mark $MARK_VALUE
 
 # delete route table
 ip rule del fwmark $MARK_VALUE table $ROUTE_TABLE

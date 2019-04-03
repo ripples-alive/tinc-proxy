@@ -4,30 +4,41 @@ echo "interface $INTERFACE up"
 
 DIR_NAME=${DIR_NAME:-$(dirname $(readlink -f $0))}
 DIR_NAME=${DIR_NAME:-"."}
-echo "dir name: ${DIR_NAME}"
+echo "src dir: ${DIR_NAME}"
+WORKING_DIR=$(pwd)
+echo "working dir: ${WORKING_DIR}"
 
+[ -f $WORKING_DIR/tinc-env ] && source $WORKING_DIR/tinc-env
 source $DIR_NAME/tinc-env
 
 # create interface
 ip link set $INTERFACE up
-ip addr add $VPN_IP/24 dev $INTERFACE
+ip addr add $VPN_LAN_IP/24 dev $INTERFACE
 
 # create bypass set with china list
-echo "ipset name: ${SET_NAME}"
 sed "s/^/add $SET_NAME /;1i create $SET_NAME hash:net family inet hashsize 4096 maxelem 65536" $DIR_NAME/chnroute.txt | ipset restore
 echo "chnroute loaded"
 
 # add bypass for lan
 if [ $BYPASS_LAN -eq 1 ]; then
-	ipset add $SET_NAME 10.0.0.0/8
-	ipset add $SET_NAME 172.16.0.0/12
-	ipset add $SET_NAME 192.168.0.0/16
+    ipset add $SET_NAME 10.0.0.0/8
+    ipset add $SET_NAME 172.16.0.0/12
+    ipset add $SET_NAME 192.168.0.0/16
 fi
 
 # add extra bypass
 for bypass_addr in ${BYPASS[@]}; do
-	ipset add $SET_NAME $bypass_addr
+    ipset add $SET_NAME $bypass_addr
 done
+
+# add bypass rules
+iptables -t mangle -N $CHAIN_NAME
+iptables -t mangle -A $CHAIN_NAME -d $VPN_LAN_IP -j ACCEPT
+iptables -t mangle -A $CHAIN_NAME -m set --match-set $SET_NAME dst -j RETURN
+
+# enable rules
+iptables -t mangle -I PREROUTING -j $CHAIN_NAME
+iptables -t mangle -I OUTPUT -j $CHAIN_NAME
 
 # enable nat
 iptables -t nat -I POSTROUTING -o $INTERFACE -j MASQUERADE

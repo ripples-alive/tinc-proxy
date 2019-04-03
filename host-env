@@ -1,8 +1,9 @@
 #!/bin/bash
 
-VPN_GATEWAY=${VPN_GATEWAY:-${VPN_IP%.*}.1}
-ROUTE_TABLE=${ROUTE_TABLE:-200}
-MARK_VALUE=${MARK_VALUE:-${ROUTE_TABLE}}
+VPN_GATEWAY=${VPN_GATEWAY:-${VPN_LAN_IP%.*}.1}
 echo "vpn gateway: ${VPN_GATEWAY}"
+
+ROUTE_TABLE=${ROUTE_TABLE:-200}
 echo "route table: ${ROUTE_TABLE}"
+MARK_VALUE=${MARK_VALUE:-${ROUTE_TABLE}}
 echo "mark value: ${MARK_VALUE}"

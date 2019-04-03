@@ -4,28 +4,22 @@ echo "host $NODE up"
 
 DIR_NAME=${DIR_NAME:-$(dirname $(readlink -f $0))}
 DIR_NAME=${DIR_NAME:-"."}
-echo "dir name: ${DIR_NAME}"
+echo "src dir: ${DIR_NAME}"
+WORKING_DIR=$(pwd)
+echo "working dir: ${WORKING_DIR}"
 
+[ -f $WORKING_DIR/tinc-env ] && source $WORKING_DIR/tinc-env
 source $DIR_NAME/tinc-env
+[ -f $WORKING_DIR/hosts/$NODE-env ] && source $WORKING_DIR/hosts/$NODE-env
 source $DIR_NAME/host-env
-
-CHAIN_NAME="tinc$MARK_VALUE"
-echo "chain name: ${CHAIN_NAME}"
 
 # add route table
 ip route flush table $ROUTE_TABLE
 ip route add default via $VPN_GATEWAY dev $INTERFACE table $ROUTE_TABLE
 ip rule add fwmark $MARK_VALUE table $ROUTE_TABLE
 
-# add proxy rules
-iptables -t mangle -N $CHAIN_NAME
-iptables -t mangle -A $CHAIN_NAME -d $VPN_IP -j ACCEPT
-iptables -t mangle -A $CHAIN_NAME -m set --match-set $SET_NAME dst -j RETURN
+# add proxy rule
 iptables -t mangle -A $CHAIN_NAME -m mark --mark 0 -j MARK --set-mark $MARK_VALUE
-
-# enable proxy rules
-iptables -t mangle -I PREROUTING -j $CHAIN_NAME
-iptables -t mangle -I OUTPUT -j $CHAIN_NAME
 
 # reload dns
 $DIR_NAME/reload-dns

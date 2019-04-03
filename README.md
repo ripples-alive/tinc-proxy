@@ -2,38 +2,28 @@
 
 You can run multiple tinc instance or multiple nodes with one instance as fallback for the strategy proxy.
 
-Remember to append your VPN server ip to `BYPASS` in `tinc-env`.
-
 ```bash
 #!/bin/bash
-# file: tinc-up
-export VPN_IP=172.16.1.2
-export SET_NAME=tinc_bypass
-/tinc-proxy/tinc-up
-```
 
-```bash
-#!/bin/bash
-# file: tinc-down
-export VPN_IP=172.16.1.2
-export SET_NAME=tinc_bypass
-/tinc-proxy/tinc-down
-```
+VPN_SERVER_IP=1.1.1.1
+VPN_LAN_IP=172.16.1.2
+VPN_GATEWAY_IP=172.16.1.1
+INTERFACE=interface
+NODE=node
+SRC_DIR=~/src/tinc-proxy
+TINC_DIR=/etc/tinc/$INTERFACE
 
-```bash
-#!/bin/bash
-# file: host-up
-export VPN_GATEWAY=172.16.1.1
-export SET_NAME=tinc_bypass
-export ROUTE_TABLE=200
-/tinc-proxy/host-up
-```
+ln -s $SRC_DIR/tinc-up $TINC_DIR/tinc-up
+ln -s $SRC_DIR/tinc-down $TINC_DIR/tinc-down
+ln -s $SRC_DIR/host-up $TINC_DIR/hosts/$NODE-up
+ln -s $SRC_DIR/host-down $TINC_DIR/hosts/$NODE-down
 
-```bash
-#!/bin/bash
-# file: host-down
-export VPN_GATEWAY=172.16.1.1
-export SET_NAME=tinc_bypass
-export ROUTE_TABLE=200
-/tinc-proxy/host-down
+cat <<EOF > $TINC_DIR/tinc-env
+VPN_IP=$VPN_LAN_IP
+BYPASS=("$VPN_SERVER_IP")
+EOF
+
+cat <<EOF > $TINC_DIR/hosts/$NODE-env
+VPN_GATEWAY=$VPN_GATEWAY_IP
+EOF
 ```
