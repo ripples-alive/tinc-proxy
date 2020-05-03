@@ -13,7 +13,7 @@ source $DIR_NAME/tinc-env
 
 # create interface
 ip link set $INTERFACE up
-ip addr add $VPN_LAN_IP/24 dev $INTERFACE
+ip addr add $VPN_LAN_IP/${VPN_LAN_MASK:-24} dev $INTERFACE
 
 # create bypass set with china list
 sed "s/^/add $SET_NAME /;1i create $SET_NAME hash:net family inet hashsize 4096 maxelem 65536" $DIR_NAME/chnroute.txt | ipset restore
